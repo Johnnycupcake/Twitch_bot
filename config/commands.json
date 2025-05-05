@@ -1,0 +1,32 @@
+{
+    "!hello": {
+        "response": "Hello! How can I assist you today, {user}?"
+    },
+    "!cow": {
+        "response": "Moo! Here's a cow for you: 🐄"
+    },
+    "!cat": {
+        "response": "Meow! Here's a cat for you: 🐱"
+    },
+    "!uptime": {
+        "response": "The stream has been live for {uptime}."
+    },
+    "!followage": {
+        "response": "{user} has been following for {followage}."
+    },
+    "!so": {
+        "response": "{target_user}Shoutout to @{target_user}! Check out their channel at https://twitch.tv/{target_user}."
+    },
+    "!lurk": {
+        "response": "{user} is now lurking. Thanks for the support!"
+    },
+    "!unlurk": {
+        "response": "Welcome back, {user}!"
+    },
+    "!discord": {
+        "response": "Join our Discord community here: {discord_link}"
+    },
+    "!socials": {
+        "response": "Follow us on social media: Twitter: {twitter_link}, Instagram: {instagram_link}"
+    }
+}
