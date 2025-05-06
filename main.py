@@ -1,9 +1,9 @@
 import os
 import logging
 from dotenv import load_dotenv
-from irc_client import connect_to_twitch, send_message, parse_message
-from json_loader import load_json, save_json
-from command_handler import handle_command
+from bot.irc_client import connect_to_twitch, send_message, parse_message
+from bot.json_loader import load_json, save_json
+from bot.command_handler import handle_command
 
 SERVER = 'irc.chat.twitch.tv'
 PORT = 443

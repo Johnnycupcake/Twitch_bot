@@ -1,6 +1,7 @@
 import socket
 import ssl
 import logging
+
 def connect_to_twitch(server, port, token, nickname, channel):
     context = ssl.create_default_context()
     sock = socket.create_connection((server, port))
