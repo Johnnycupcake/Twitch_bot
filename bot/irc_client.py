@@ -22,6 +22,7 @@ def parse_message(msg):
     try:
         username = msg.split('!', 1)[0][1:]
         message = msg.split('PRIVMSG', 1)[1].split(':', 1)[1]
+        print(username, message)
         return username, message.strip()
     except Exception as e:
         logging.error(f"Error parsing message: {e}")
