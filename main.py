@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from bot.irc_client import connect_to_twitch, send_message, parse_message
 from bot.json_loader import load_json, save_json
 from bot.command_handler import handle_command
+from bot.twitch_api import get_access_token, get_user_id, get_stream_info
 
 
 
