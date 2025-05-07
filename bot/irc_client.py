@@ -3,17 +3,25 @@ import ssl
 import logging
 
 def connect_to_twitch(server, port, token, nickname, channel):
-    context = ssl.create_default_context()
-    sock = socket.create_connection((server, port))
-    sock = context.wrap_socket(sock, server_hostname=server)
-    sock.send(f"PASS {token}\r\n".encode('utf-8'))
-    sock.send(f"NICK {nickname}\r\n".encode('utf-8'))
-    sock.send(f"JOIN {channel}\r\n".encode('utf-8'))
-    print(f"Connected to {channel} as {nickname}")
-    return sock
+    try:
+        context = ssl.create_default_context()
+        sock = socket.create_connection((server, port))
+        sock = context.wrap_socket(sock, server_hostname=server)
+        sock.send(f"PASS {token}\r\n".encode('utf-8'))
+        sock.send(f"NICK {nickname}\r\n".encode('utf-8'))
+        sock.send(f"JOIN {channel}\r\n".encode('utf-8'))
+        print(f"Connected to {channel} as {nickname}")
+        return sock
+    except Exception as e:
+        logging.error(f"Error connecting to Twitch: {e}")
+        raise
 
 def send_message(sock, channel, message):
-    sock.send(f"PRIVMSG {channel} :{message}\r\n".encode('utf-8'))
+    try:
+        sock.send(f"PRIVMSG {channel} :{message}\r\n".encode('utf-8'))
+    except Exception as e:
+        logging.error(f"Error sending message: {e}")
+        raise
 
 def parse_message(msg):
     """Parse a raw IRC message to extract username and message content."""

@@ -8,9 +8,7 @@
     "!cat": {
         "response": "Meow! Here's a cat for you: 🐱"
     },
-    "!uptime": {
-        "response": "The stream has been live for {uptime}."
-    },
+    
     "!followage": {
         "response": "{user} has been following for {followage}."
     },

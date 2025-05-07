@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-CLIENT_ID = os.getenv('TWITCH_CLIENT_ID')
-CLIENT_SECRET = os.getenv('TWITCH_CLIENT_SECRET')
+CLIENT_ID = os.getenv('CLIENT_ID')
+CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 CHANNEL_NAME = os.getenv('CHANNEL_NAME')
 BASE_URL = 'https://api.twitch.tv/helix/'
 
