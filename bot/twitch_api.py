@@ -8,9 +8,11 @@ load_dotenv()
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 CHANNEL_NAME = os.getenv('CHANNEL_NAME')
-BASE_URL =  f'https://api.twitch.tv/helix/streams?user_login={CHANNEL_NAME}'
+BASE_URL =  'https://api.twitch.tv/helix/'
 
 def get_access_token():
+    #Figure out flow and figure out scopes
+    
     url = 'https://id.twitch.tv/oauth2/token'
     parameters = {
         'client_id': CLIENT_ID,
@@ -40,7 +42,7 @@ def get_user_id(access_token):
         raise Exception(f"Failed to get user ID: {response.status_code} {response.text}")
     
 def get_stream_info(access_token, user_id):
-    url = f"{BASE_URL}"
+    url = f"{BASE_URL}streams"
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Client-ID': CLIENT_ID
@@ -59,4 +61,21 @@ def get_stream_info(access_token, user_id):
         return "Stream is offline"
     else:
         raise Exception(f"Failed to get stream info: {response.status_code} {response.text}")
+    
+def get_followers(access_token, user_id):
+    url = f"{BASE_URL}users/follows"
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Client-ID': CLIENT_ID
+    }
+    params = {
+        'to_id': user_id,
+        'first': 100
+    }
+    response = requests.get(url, headers=headers, params=params)
+    if response.status_code == 200:
+        return response.json()['total']
+    else:
+        raise Exception(f"Failed to get followers: {response.status_code} {response.text}")
+    
     
