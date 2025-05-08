@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from bot.irc_client import connect_to_twitch, send_message, parse_message
 from bot.json_loader import load_json, save_json
 from bot.command_handler import handle_command
+import logging
 
 
 
@@ -11,17 +12,17 @@ PORT = 443
 
 load_dotenv()
 TOKEN = os.getenv('TMI_TOKEN')
-NICKNAME = 'xtremetenticalbot'
-CHANNEL = '#xtremetenticalcorn'
+NICKNAME = 'xtremetenticalcorn'
+CHANNEL = f'#{NICKNAME}'
 
 sock = connect_to_twitch(SERVER, PORT, TOKEN, NICKNAME, CHANNEL)
+print(SERVER, PORT, TOKEN, NICKNAME, CHANNEL)
 try:
     commands = load_json(os.path.join('config', 'commands.json'))
 except FileNotFoundError:
     commands = {}
 
-while True:
-        
+while True:        
     response = sock.recv(2048).decode('utf-8')
     if response.startswith('PING'):
         sock.send("PONG :tmi.twitch.tv\r\n".encode('utf-8'))

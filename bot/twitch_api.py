@@ -2,12 +2,13 @@ import os
 import requests
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 CHANNEL_NAME = os.getenv('CHANNEL_NAME')
-BASE_URL = 'https://api.twitch.tv/helix/'
+BASE_URL =  f'https://api.twitch.tv/helix/streams?user_login={CHANNEL_NAME}'
 
 def get_access_token():
     url = 'https://id.twitch.tv/oauth2/token'
@@ -34,11 +35,12 @@ def get_user_id(access_token):
     response = requests.get(url, headers=headers, params=params)
     if response.status_code == 200:
         return response.json()['data'][0]['id']
+        
     else:
         raise Exception(f"Failed to get user ID: {response.status_code} {response.text}")
     
 def get_stream_info(access_token, user_id):
-    url = f"{BASE_URL}streams"
+    url = f"{BASE_URL}"
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Client-ID': CLIENT_ID
@@ -48,7 +50,13 @@ def get_stream_info(access_token, user_id):
     }
     response = requests.get(url, headers=headers, params=params)
     if response.status_code == 200:
-        return response.json()['data']
+        print(response)
+        if response.json()['data'] == []:
+            return f"{CHANNEL_NAME} is offline"
+        else:
+             return response.json()['data']
+    elif response.status_code == 204:
+        return "Stream is offline"
     else:
         raise Exception(f"Failed to get stream info: {response.status_code} {response.text}")
     
