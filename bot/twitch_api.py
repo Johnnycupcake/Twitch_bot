@@ -36,6 +36,7 @@ def get_user_id(access_token):
     }
     response = requests.get(url, headers=headers, params=params)
     if response.status_code == 200:
+        print(response.json()['data'])
         return response.json()['data'][0]['id']
         
     else:
@@ -63,14 +64,15 @@ def get_stream_info(access_token, user_id):
         raise Exception(f"Failed to get stream info: {response.status_code} {response.text}")
     
 def get_followers(access_token, user_id):
-    url = f"{BASE_URL}users/follows"
+    url = f"{BASE_URL}channels/followers"
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Client-ID': CLIENT_ID
     }
     params = {
-        'to_id': user_id,
-        'first': 100
+        'broadcaster_id': user_id,
+        'first': 100,
+        
     }
     response = requests.get(url, headers=headers, params=params)
     if response.status_code == 200:
