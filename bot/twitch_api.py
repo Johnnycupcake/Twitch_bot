@@ -1,83 +1,90 @@
 import os
 import requests
+import urllib.parse
 from dotenv import load_dotenv
-
+from bot.json_loader import save_tokens, load_tokens
 
 load_dotenv()
 
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
-CHANNEL_NAME = os.getenv('CHANNEL_NAME')
-BASE_URL =  'https://api.twitch.tv/helix/'
+REDIRECT_URI = os.getenv('REDIRECT_URI')
+BASE_URL = 'https://api.twitch.tv/helix/'
 
-def get_access_token():
-    #Figure out flow and figure out scopes
-    
+
+
+
+def gen_auth_url():
+    url = 'https://id.twitch.tv/oauth2/authorize'
+    params = {
+        'client_id': CLIENT_ID,
+        'redirect_uri': REDIRECT_URI,
+        'response_type': 'code',
+        'scope': 'user:read:email user:edit user:manage:blocked_users user:read:blocked_users'
+    }
+    auth_url = f"{url}?{urllib.parse.urlencode(params)}"
+    print("Visit this URL to authorize the app:")
+    print(auth_url)
+
+
+def exchange_for_tokens(code):
     url = 'https://id.twitch.tv/oauth2/token'
-    parameters = {
+    data = {
         'client_id': CLIENT_ID,
         'client_secret': CLIENT_SECRET,
-        'grant_type': 'client_credentials'
+        'code': code,
+        'grant_type': 'authorization_code',
+        'redirect_uri': REDIRECT_URI
     }
-    response = requests.post(url, params=parameters)
+    response = requests.post(url, data=data)
     if response.status_code == 200:
-        return response.json()['access_token']
+        tokens = response.json()
+        save_tokens(tokens)
+        return tokens['access_token']
     else:
-        raise Exception(f"Failed to get access token: {response.status_code} {response.text}")
-    
-def get_user_id(access_token):
+        raise Exception(f"Error exchanging code for tokens: {response.status_code} - {response.text}")
+
+
+def refresh_access_token(refresh_token):
+    url = 'https://id.twitch.tv/oauth2/token'
+    data = {
+        'client_id': CLIENT_ID,
+        'client_secret': CLIENT_SECRET,
+        'refresh_token': refresh_token,
+        'grant_type': 'refresh_token'
+    }
+    response = requests.post(url, data=data)
+    if response.status_code == 200:
+        tokens = response.json()
+        save_tokens(tokens)
+        return tokens['access_token']
+    else:
+        raise Exception(f"Error refreshing access token: {response.status_code} - {response.text}")
+
+
+def get_user_info():
+    tokens = load_tokens()
+    if not tokens:
+        print("❗ No tokens found. Run gen_auth_url(), go to the URL, get the code, and call exchange_for_tokens(code).")
+        return
+
+    access_token = tokens['access_token']
+
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Client-ID': CLIENT_ID
+    }
     url = f"{BASE_URL}users"
-    headers = {
-        'Authorization': f'Bearer {access_token}',
-        'Client-ID': CLIENT_ID
-    }
-    params = {
-        'login': CHANNEL_NAME
-    }
-    response = requests.get(url, headers=headers, params=params)
-    if response.status_code == 200:
-        print(response.json()['data'])
-        return response.json()['data'][0]['id']
-        
-    else:
-        raise Exception(f"Failed to get user ID: {response.status_code} {response.text}")
-    
-def get_stream_info(access_token, user_id):
-    url = f"{BASE_URL}streams"
-    headers = {
-        'Authorization': f'Bearer {access_token}',
-        'Client-ID': CLIENT_ID
-    }
-    params = {
-        'user_id': user_id
-    }
-    response = requests.get(url, headers=headers, params=params)
-    if response.status_code == 200:
-        print(response)
-        if response.json()['data'] == []:
-            return f"{CHANNEL_NAME} is offline"
-        else:
-             return response.json()['data']
-    elif response.status_code == 204:
-        return "Stream is offline"
-    else:
-        raise Exception(f"Failed to get stream info: {response.status_code} {response.text}")
-    
-def get_followers(access_token, user_id):
-    url = f"{BASE_URL}channels/followers"
-    headers = {
-        'Authorization': f'Bearer {access_token}',
-        'Client-ID': CLIENT_ID
-    }
-    params = {
-        'broadcaster_id': user_id,
-        'first': 100,
-        
-    }
-    response = requests.get(url, headers=headers, params=params)
-    if response.status_code == 200:
-        return response.json()['total']
-    else:
-        raise Exception(f"Failed to get followers: {response.status_code} {response.text}")
-    
-    
+    response = requests.get(url, headers=headers)
+
+    # Handle token expiration
+    if response.status_code == 401:
+        print("🔁 Access token expired. Refreshing...")
+        access_token = refresh_access_token(tokens['refresh_token'])
+
+        headers['Authorization'] = f'Bearer {access_token}'
+        response = requests.get(url, headers=headers)
+
+    print(response.status_code, response.json())
+    return response.json()
+

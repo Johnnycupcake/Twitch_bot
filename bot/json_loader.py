@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 def load_json(filename, default=None):
     try:
@@ -12,10 +13,17 @@ def load_json(filename, default=None):
         logging.error(f"Error loading {filename}: {e}")
         return default or {}
 
-def save_json(data, filename):
-    try:
-        with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=4)
-        logging.info(f"Saved data to {filename}")
-    except Exception as e:
-        logging.error(f"Error saving {filename}: {e}")
+def save_tokens(tokens):
+    filename = os.path.join('config','saved_tokens.json')
+    with open(filename, "w") as f:
+        json.dump(tokens, f)
+    print("💾 Tokens saved!")
+
+
+def load_tokens():
+    filename = os.path.join('config', 'saved_tokens.json')
+    if os.path.exists(filename):
+        with open(filename, "r") as f:
+            return json.load(f)
+    else:
+        return None

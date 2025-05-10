@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from bot.irc_client import connect_to_twitch, send_message, parse_message
-from bot.json_loader import load_json, save_json
+from bot.json_loader import load_json, load_tokens
 from bot.command_handler import handle_command
 import logging
 
@@ -11,12 +11,13 @@ SERVER = 'irc.chat.twitch.tv'
 PORT = 443
 
 load_dotenv()
-TOKEN = os.getenv('TMI_TOKEN')
+TOKEN = load_tokens()['access_token']
+TOKEN = "oauth:" + TOKEN
 NICKNAME = 'xtremetenticalcorn'
 CHANNEL = f'#{NICKNAME}'
 
 sock = connect_to_twitch(SERVER, PORT, TOKEN, NICKNAME, CHANNEL)
-print(SERVER, PORT, TOKEN, NICKNAME, CHANNEL)
+
 try:
     commands = load_json(os.path.join('config', 'commands.json'))
 except FileNotFoundError:
